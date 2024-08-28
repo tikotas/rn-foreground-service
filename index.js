@@ -54,8 +54,7 @@ class ForegroundService {
    */
   static async startService(notificationConfig) {
     console.log("Start Service Triggered");
-    // return await ForegroundServiceModule.startService(notificationConfig);
-    return await ForegroundServiceModule.startForeground(notificationConfig);
+    return await ForegroundServiceModule.startService(notificationConfig);
 
   }
 
