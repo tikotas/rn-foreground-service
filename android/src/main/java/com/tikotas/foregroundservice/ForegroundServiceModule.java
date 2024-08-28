@@ -46,39 +46,49 @@ public class ForegroundServiceModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startService(ReadableMap notificationConfig, Promise promise) {
+        Log.e("ForegroundServiceModule", "LevonArqaTest start : " + notificationConfig);
+
         if (notificationConfig == null) {
+         Log.e("ForegroundServiceModule", "LevonArqaTest start if not == null: " + notificationConfig);
             promise.reject(ERROR_INVALID_CONFIG, "ForegroundService: Notification config is invalid");
             return;
         }
 
         if (!notificationConfig.hasKey("id")) {
+        Log.e("ForegroundServiceModule", "LevonArqaTest start if !notificationConfig.hasKey(\"id\"): " + notificationConfig);
             promise.reject(ERROR_INVALID_CONFIG , "ForegroundService: id is required");
             return;
         }
 
         if (!notificationConfig.hasKey("title")) {
+        Log.e("ForegroundServiceModule", "LevonArqaTest start if !notificationConfig.hasKey(\"title\"): " + notificationConfig);
             promise.reject(ERROR_INVALID_CONFIG, "ForegroundService: title is reqired");
             return;
         }
 
         if (!notificationConfig.hasKey("message")) {
+         Log.e("ForegroundServiceModule", "LevonArqaTest start if !notificationConfig.hasKey(\"message\"): " + notificationConfig);
             promise.reject(ERROR_INVALID_CONFIG, "ForegroundService: message is required");
             return;
         }
 
         try{
+         Log.e("ForegroundServiceModule", "LevonArqaTest start try start: " + notificationConfig);
             Intent intent = new Intent(getReactApplicationContext(), ForegroundService.class);
             intent.setAction(Constants.ACTION_FOREGROUND_SERVICE_START);
             intent.putExtra(NOTIFICATION_CONFIG, Arguments.toBundle(notificationConfig));
             ComponentName componentName = getReactApplicationContext().startService(intent);
 
             if (componentName != null) {
+             Log.e("ForegroundServiceModule", "LevonArqaTest start try if: " + notificationConfig);
                 promise.resolve(null);
             } else {
+            Log.e("ForegroundServiceModule", "LevonArqaTest start try else: " + notificationConfig);
                 promise.reject(ERROR_SERVICE_ERROR, "ForegroundService: Foreground service failed to start.");
             }
         }
         catch(IllegalStateException e){
+        Log.e("ForegroundServiceModule", "LevonArqaTest start catch: " + notificationConfig);
             promise.reject(ERROR_SERVICE_ERROR, "ForegroundService: Foreground service failed to start.");
         }
     }
