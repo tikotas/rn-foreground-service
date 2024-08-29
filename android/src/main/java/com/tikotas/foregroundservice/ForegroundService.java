@@ -168,7 +168,7 @@ Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig)
                                 notificationManager.createNotificationChannel(notificationChannel);
                             }
 
-                            return new NotificationCompat.Builder(getApplicationContext(), locationChannelId)
+                            new NotificationCompat.Builder(getApplicationContext(), locationChannelId)
                                     .setSmallIcon(getResourceIdForResourceName(getApplicationContext(), iconName))
                                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                                     .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)

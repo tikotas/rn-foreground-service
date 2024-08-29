@@ -1,6 +1,6 @@
 {
   "name": "rn-foreground-service-v",
-  "version": "2.1.5",
+  "version": "2.1.8",
   "description": "A Foreground Service for React Native",
   "main": "index.js",
   "repository": "https://github.com/tikotas/rn-foreground-service",
