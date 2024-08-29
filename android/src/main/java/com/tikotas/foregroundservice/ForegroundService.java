@@ -81,6 +81,30 @@ public class ForegroundService extends Service {
 //                .getInstance(getApplicationContext())
 //                .buildNotification(getApplicationContext(), notificationConfig);
 
+
+                            String locationChannelId = "location_channel";
+                            String channelName = "Location Channel";
+                            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+                            NotificationChannel notificationChannel = new NotificationChannel(locationChannelId, channelName, importance);
+                            notificationChannel.setDescription("Running service to find your location");
+
+                            NotificationManager notificationManager = (NotificationManager) requireContextgetApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                            if (notificationManager != null) {
+                                notificationManager.createNotificationChannel(notificationChannel);
+                            }
+
+                            new NotificationCompat.Builder(getApplicationContext(), locationChannelId)
+                                    .setSmallIcon(getResourceIdForResourceName(getApplicationContext(), iconName))
+                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                    .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
+                                    .setContentTitle("LevonArqa")
+                                    .setContentText("notificationContentText")
+                                    .setSilent(true)
+                                    .setOngoing(true);
+
+                            lastNotificationConfig = notificationConfig;
+
             startForeground(id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
 
             running += 1;
