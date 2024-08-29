@@ -1,15 +1,29 @@
 package com.tikotas.foregroundservice;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
-import android.content.pm.ServiceInfo;
+import android.app.PendingIntent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.os.Build;
+import android.os.Bundle;
+import androidx.core.app.NotificationCompat;
+
+
+import androidx.core.app.NotificationCompat;
+
 import com.facebook.react.HeadlessJsTaskService;
+
+import android.content.pm.ServiceInfo;
 
 import static com.tikotas.foregroundservice.Constants.NOTIFICATION_CONFIG;
 import static com.tikotas.foregroundservice.Constants.TASK_CONFIG;
@@ -24,30 +38,30 @@ public class ForegroundService extends Service {
     private static ForegroundService mInstance = null;
     private static Bundle lastNotificationConfig = null;
     private int running = 0;
+    public Bundle taskConfig;
+    private Handler handler = new Handler();
 
 
-
-    public static boolean isServiceCreated(){
-        try{
+    public static boolean isServiceCreated() {
+        try {
             return mInstance != null && mInstance.ping();
-        }
-        catch(NullPointerException e){
+        } catch (NullPointerException e) {
             return false;
         }
     }
 
-    public static ForegroundService getInstance(){
-        if(isServiceCreated()){
+    public static ForegroundService getInstance() {
+        if (isServiceCreated()) {
             return mInstance;
         }
         return null;
     }
 
-    public int isRunning(){
+    public int isRunning() {
         return running;
     }
 
-    private boolean ping(){
+    private boolean ping() {
         return true;
     }
 
@@ -71,69 +85,70 @@ public class ForegroundService extends Service {
         return null;
     }
 
-    private boolean startService(Bundle notificationConfig){
-    Log.e("ForegroundService", "LevonArqaTest start: " + notificationConfig);
+     private int getResourceIdForResourceName(Context context, String resourceName) {
+            int resourceId = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
+            if (resourceId == 0) {
+                resourceId = context.getResources().getIdentifier(resourceName, "mipmap", context.getPackageName());
+            }
+            return resourceId;
+        }
+
+    private boolean startService(Bundle notificationConfig) {
         try {
-        Log.e("ForegroundService", "LevonArqaTest start try start: " + notificationConfig);
-            int id = (int)notificationConfig.getDouble("id");
+            int id = (int) notificationConfig.getDouble("id");
 
-//            Notification notification = NotificationHelper
-//                .getInstance(getApplicationContext())
-//                .buildNotification(getApplicationContext(), notificationConfig);
+            String locationChannelId = "location_channel";
+            String channelName = "Location Channel";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
 
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                NotificationChannel notificationChannel = new NotificationChannel(locationChannelId, channelName, importance);
+                notificationChannel.setDescription("Running service to find your location");
 
-                            String locationChannelId = "location_channel";
-                            String channelName = "Location Channel";
-                            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null) {
+                    notificationManager.createNotificationChannel(notificationChannel);
+                }
+            }
 
-                            NotificationChannel notificationChannel = new NotificationChannel(locationChannelId, channelName, importance);
-                            notificationChannel.setDescription("Running service to find your location");
-
-                            NotificationManager notificationManager = (NotificationManager) requireContextgetApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                            if (notificationManager != null) {
-                                notificationManager.createNotificationChannel(notificationChannel);
-                            }
-
-                            new NotificationCompat.Builder(getApplicationContext(), locationChannelId)
-                                    .setSmallIcon(getResourceIdForResourceName(getApplicationContext(), iconName))
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                                    .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
-                                    .setContentTitle("LevonArqa")
-                                    .setContentText("notificationContentText")
-                                    .setSilent(true)
-                                    .setOngoing(true);
-
-                            lastNotificationConfig = notificationConfig;
+            Notification notification = new NotificationCompat.Builder(getApplicationContext(), locationChannelId)
+                    .setSmallIcon(getResourceIdForResourceName(getApplicationContext(), "ic_launcher"))
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
+                    .setContentTitle("LevonArqa")
+                    .setContentText("notificationContentText")
+                    .setSilent(true)
+                    .setOngoing(true)
+                    .build();
 
             startForeground(id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
 
             running += 1;
 
             lastNotificationConfig = notificationConfig;
-Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig);
+            Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig);
             return true;
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.e("ForegroundService", "Failed to start service: " + e.getMessage());
             return false;
         }
     }
-    public  Bundle taskConfig;
-    private Handler handler = new Handler();
+
+
     private Runnable runnableCode = new Runnable() {
-      @Override
-      public void run() {
-        final Intent service = new Intent(getApplicationContext(), ForegroundServiceTask.class);
-        service.putExtras(taskConfig);
-        getApplicationContext().startService(service);
+        @Override
+        public void run() {
+            final Intent service = new Intent(getApplicationContext(), ForegroundServiceTask.class);
+            service.putExtras(taskConfig);
+            getApplicationContext().startService(service);
 
-        int delay = (int)taskConfig.getDouble("delay");
+            int delay = (int) taskConfig.getDouble("delay");
 
-          int loopDelay = (int)taskConfig.getDouble("loopDelay");
-          Log.d("SuperLog",""+loopDelay);
-        handler.postDelayed(this, loopDelay);
-      }
+            int loopDelay = (int) taskConfig.getDouble("loopDelay");
+            Log.d("SuperLog", "" + loopDelay);
+            handler.postDelayed(this, loopDelay);
+        }
     };
 
     @Override
@@ -141,11 +156,11 @@ Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig)
         String action = intent.getAction();
 
         /**
-        From the docs:
-        Every call to this method will result in a corresponding call to the target service's
-        Service.onStartCommand(Intent, int, int) method, with the intent given here.
-        This provides a convenient way to submit jobs to a service without having to bind and call on to its interface.
-        */
+         From the docs:
+         Every call to this method will result in a corresponding call to the target service's
+         Service.onStartCommand(Intent, int, int) method, with the intent given here.
+         This provides a convenient way to submit jobs to a service without having to bind and call on to its interface.
+         */
 
         //Log.d("ForegroundService", "onStartCommand flags: " + String.valueOf(flags) + "  " + String.valueOf(startId));
 
@@ -163,67 +178,34 @@ Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig)
                 if (intent.getExtras() != null && intent.getExtras().containsKey(NOTIFICATION_CONFIG)) {
                     Bundle notificationConfig = intent.getExtras().getBundle(NOTIFICATION_CONFIG);
 
-                    if(running <= 0){
+                    if (running <= 0) {
                         Log.d("ForegroundService", "Update Notification called without a running service, trying to restart service.");
                         startService(notificationConfig);
-                    }
-                    else{
+                    } else {
 
                         try {
-                            int id = (int)notificationConfig.getDouble("id");
+                            int id = (int) notificationConfig.getDouble("id");
 
-//                            Notification notification = NotificationHelper
-//                                .getInstance(getApplicationContext())
-//                                .buildNotification(getApplicationContext(), notificationConfig);
-//
-//                            NotificationManager mNotificationManager=(NotificationManager)getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
-//                            mNotificationManager.notify(id, notification);
-
-
-                            String locationChannelId = "location_channel";
-                            String channelName = "Location Channel";
-                            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-
-                            NotificationChannel notificationChannel = new NotificationChannel(locationChannelId, channelName, importance);
-                            notificationChannel.setDescription("Running service to find your location");
-
-                            NotificationManager notificationManager = (NotificationManager) requireContextgetApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                            if (notificationManager != null) {
-                                notificationManager.createNotificationChannel(notificationChannel);
-                            }
-
-                            new NotificationCompat.Builder(getApplicationContext(), locationChannelId)
-                                    .setSmallIcon(getResourceIdForResourceName(getApplicationContext(), iconName))
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                                    .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
-                                    .setContentTitle("LevonArqa")
-                                    .setContentText("notificationContentText")
-                                    .setSilent(true)
-                                    .setOngoing(true);
-
+//TODO update notification
                             lastNotificationConfig = notificationConfig;
 
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             Log.e("ForegroundService", "Failed to update notification: " + e.getMessage());
                         }
                     }
 
                 }
-            }
-
-            else if (action.equals(Constants.ACTION_FOREGROUND_RUN_TASK)){
-                if(running <= 0 && lastNotificationConfig == null){
+            } else if (action.equals(Constants.ACTION_FOREGROUND_RUN_TASK)) {
+                if (running <= 0 && lastNotificationConfig == null) {
                     Log.e("ForegroundService", "Service is not running to run tasks.");
                     stopSelf();
                     return START_NOT_STICKY;
-                }
-                else{
+                } else {
 
                     // try to re-start service if it was killed
-                    if(running <= 0){
+                    if (running <= 0) {
                         Log.d("ForegroundService", "Run Task called without a running service, trying to restart service.");
-                        if(!startService(lastNotificationConfig)){
+                        if (!startService(lastNotificationConfig)) {
                             Log.e("ForegroundService", "Service is not running to run tasks.");
                             return START_REDELIVER_INTENT;
                         }
@@ -234,39 +216,33 @@ Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig)
 
                         try {
 
-                             if( taskConfig.getBoolean("onLoop") == true) {
-                                 this.handler.post(this.runnableCode);
-                             }else{
-                                 this.runHeadlessTask(taskConfig);
-                             }
+                            if (taskConfig.getBoolean("onLoop") == true) {
+                                this.handler.post(this.runnableCode);
+                            } else {
+                                this.runHeadlessTask(taskConfig);
+                            }
 
-
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             Log.e("ForegroundService", "Failed to start task: " + e.getMessage());
                         }
                     }
                 }
-            }
-
-            else if (action.equals(Constants.ACTION_FOREGROUND_SERVICE_STOP)) {
-                if(running > 0){
+            } else if (action.equals(Constants.ACTION_FOREGROUND_SERVICE_STOP)) {
+                if (running > 0) {
                     running -= 1;
 
-                    if (running == 0){
+                    if (running == 0) {
                         stopSelf();
                         lastNotificationConfig = null;
                     }
-                }
-                else{
+                } else {
                     Log.d("ForegroundService", "Service is not running to stop.");
                     stopSelf();
                     lastNotificationConfig = null;
                 }
                 return START_NOT_STICKY;
 
-            }
-            else if (action.equals(Constants.ACTION_FOREGROUND_SERVICE_STOP_ALL)) {
+            } else if (action.equals(Constants.ACTION_FOREGROUND_SERVICE_STOP_ALL)) {
                 running = 0;
                 mInstance = null;
                 lastNotificationConfig = null;
@@ -281,38 +257,28 @@ Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig)
     }
 
 
-    
-
-    public void runHeadlessTask(Bundle bundle){
+    public void runHeadlessTask(Bundle bundle) {
         final Intent service = new Intent(getApplicationContext(), ForegroundServiceTask.class);
         service.putExtras(bundle);
 
-        int delay = (int)bundle.getDouble("delay");
+        int delay = (int) bundle.getDouble("delay");
 
-        if(delay <= 0){
+        if (delay <= 0) {
             getApplicationContext().startService(service);
-
-            // wakelock should be released automatically by the task
-            // Shouldn't be needed, it's called automatically by headless
-            //HeadlessJsTaskService.acquireWakeLockNow(getApplicationContext());
-        }
-        else{
+        } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if(running <= 0){
+                    if (running <= 0) {
                         return;
                     }
-                    try{
+                    try {
                         getApplicationContext().startService(service);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         Log.e("ForegroundService", "Failed to start delayed headless task: " + e.getMessage());
                     }
                 }
             }, delay);
         }
-
-
     }
 }
