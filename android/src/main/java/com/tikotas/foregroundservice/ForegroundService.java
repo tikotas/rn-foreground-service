@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Handler;
 import android.util.Log;
-
+import android.content.pm.ServiceInfo
 import com.facebook.react.HeadlessJsTaskService;
 
 import static com.tikotas.foregroundservice.Constants.NOTIFICATION_CONFIG;
@@ -81,7 +81,7 @@ public class ForegroundService extends Service {
                 .getInstance(getApplicationContext())
                 .buildNotification(getApplicationContext(), notificationConfig);
 
-            startForeground(id, notification);
+            startForeground(id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
 
             running += 1;
 
