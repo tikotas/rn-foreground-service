@@ -115,8 +115,8 @@ public class ForegroundService extends Service {
                     .setSmallIcon(getResourceIdForResourceName(getApplicationContext(), "ic_launcher"))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
-                    .setContentTitle("LevonArqa")
-                    .setContentText("notificationContentText")
+                    .setContentTitle("Navigation")
+                    .setContentText("Navigation mode activated")
                     .setSilent(true)
                     .setOngoing(true)
                     .build();
