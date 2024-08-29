@@ -77,9 +77,9 @@ public class ForegroundService extends Service {
         Log.e("ForegroundService", "LevonArqaTest start try start: " + notificationConfig);
             int id = (int)notificationConfig.getDouble("id");
 
-            Notification notification = NotificationHelper
-                .getInstance(getApplicationContext())
-                .buildNotification(getApplicationContext(), notificationConfig);
+//            Notification notification = NotificationHelper
+//                .getInstance(getApplicationContext())
+//                .buildNotification(getApplicationContext(), notificationConfig);
 
             startForeground(id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
 
@@ -148,12 +148,34 @@ Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig)
                         try {
                             int id = (int)notificationConfig.getDouble("id");
 
-                            Notification notification = NotificationHelper
-                                .getInstance(getApplicationContext())
-                                .buildNotification(getApplicationContext(), notificationConfig);
+//                            Notification notification = NotificationHelper
+//                                .getInstance(getApplicationContext())
+//                                .buildNotification(getApplicationContext(), notificationConfig);
+//
+//                            NotificationManager mNotificationManager=(NotificationManager)getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
+//                            mNotificationManager.notify(id, notification);
 
-                            NotificationManager mNotificationManager=(NotificationManager)getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
-                            mNotificationManager.notify(id, notification);
+
+                            String locationChannelId = "location_channel";
+                            String channelName = "Location Channel";
+                            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+                            NotificationChannel notificationChannel = new NotificationChannel(locationChannelId, channelName, importance);
+                            notificationChannel.setDescription("Running service to find your location");
+
+                            NotificationManager notificationManager = (NotificationManager) requireContextgetApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                            if (notificationManager != null) {
+                                notificationManager.createNotificationChannel(notificationChannel);
+                            }
+
+                            return new NotificationCompat.Builder(getApplicationContext(), locationChannelId)
+                                    .setSmallIcon(getResourceIdForResourceName(getApplicationContext(), iconName))
+                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                    .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
+                                    .setContentTitle("LevonArqa")
+                                    .setContentText("notificationContentText")
+                                    .setSilent(true)
+                                    .setOngoing(true);
 
                             lastNotificationConfig = notificationConfig;
 
