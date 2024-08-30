@@ -72,9 +72,7 @@ public class ForegroundService extends Service {
     }
 
     private boolean startService(Bundle notificationConfig){
-    Log.e("ForegroundService", "LevonArqaTest start: " + notificationConfig);
         try {
-        Log.e("ForegroundService", "LevonArqaTest start try start: " + notificationConfig);
             int id = (int)notificationConfig.getDouble("id");
 
             Notification notification = NotificationHelper
@@ -86,7 +84,6 @@ public class ForegroundService extends Service {
             running += 1;
 
             lastNotificationConfig = notificationConfig;
-Log.e("ForegroundService", "LevonArqaTest start try end: " + notificationConfig);
             return true;
 
         }
