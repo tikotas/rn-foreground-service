@@ -23,6 +23,10 @@ the necessary permissions have been granted.
 
 ## Installation
 
+```
+npm i rn-foreground-service-v
+```
+
 The installation for the foreground service is straightforward and seamless. With the new v2 update, the service can
 auto-link itself with your application.
 
